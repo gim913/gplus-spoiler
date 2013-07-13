@@ -4,6 +4,8 @@
 
 var Start_Tag_Re=/{rot13}/;
 var Start_Tag_Len=7;
+var End_Tag_Re=/{\/rot13}/;
+var End_Tag_Len=8;
 
 // expects a-zA-Z on input
 function rotLetter(a)
@@ -44,17 +46,29 @@ function Unrot()
 {
   var m_doUnrot=0;
   return function(t) {
-    var d=t.data;
-    if (m_doUnrot)
-    {
-      t.data = d.replace(/[a-zA-Z]/g, rotLetter);
+    // this one will be called recursievely, to unrot all chunks
+    function unrotText(textData) {
+      if (m_doUnrot)
+      {
+        var end = textData.search(End_Tag_Re);
+	if (end != -1) {
+	    m_doUnrot = 0;
+	    // decoded + [drop the end tag] + process(rest)
+            return textData.slice(0, end).replace(/[a-zA-Z]/g, rotLetter) + unrotText(textData.slice(end+End_Tag_Len));
+	}
+        return textData.replace(/[a-zA-Z]/g, rotLetter);
+      }
+      var start = textData.search(Start_Tag_Re);
+      if (start != -1)
+      {
+        m_doUnrot = 1;
+	// plain + [drop the start tag] + process(rest)
+        return textData.slice(0, start) + unrotText(textData.slice(start+Start_Tag_Len));
+      }
+      // if we'll here, means we just need to return as is
+      return textData;
     }
-    var start = d.search(Start_Tag_Re);
-    if (start != -1)
-    {
-      m_doUnrot = 1;
-      t.data = d.slice(0, start+Start_Tag_Len) + d.slice(start+Start_Tag_Len).replace(/[a-zA-Z]/g, rotLetter);
-    }
+    t.data = unrotText(t.data);
     return 0;
   }
 }
@@ -64,7 +78,7 @@ function Unrot()
 function LinkRot(mainElem)
 {
   var m_mainElem = mainElem;
-  return function(t) {
+  return function rec(t) {
     var d = t.data;
     var start = d.search(Start_Tag_Re);
     if (start != -1) {
@@ -75,7 +89,7 @@ function LinkRot(mainElem)
       var spn = document.createElement("span");
       var txt = document.createTextNode(before);
       var lnk = document.createElement("a");
-      lnk.appendChild(document.createTextNode(after));
+      var rst = lnk.appendChild(document.createTextNode(after));
       lnk.onclick = function() {
         runText(m_mainElem, Unrot());
       }
@@ -83,6 +97,7 @@ function LinkRot(mainElem)
       spn.appendChild(txt);
       spn.appendChild(lnk);
       ttt.replaceChild(spn, t);
+
       // debug
       // opera.postError(ttt.innerHTML);
       return 1;
