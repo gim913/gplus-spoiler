@@ -1,7 +1,3 @@
-// ==UserScript==
-// @include https://plus.google.com/*
-// ==/UserScript==
-
 var Start_Tag_Re=/{rot13}/;
 var Start_Tag_Len=7;
 var End_Tag_Re=/{\/rot13}/;
@@ -106,15 +102,16 @@ function LinkRot(mainElem)
   }
 }
 
-window.addEventListener('DOMContentLoaded', function(temp) {
-  var links = document.querySelectorAll('div.wm');
-  var len = links.length;
-  if (len >= 0)
+// in manifest there is document_idle,
+// so script will execute AFTER DOM has been loaded
+//
+var links = document.querySelectorAll('div.wm');
+var len = links.length;
+if (len >= 0)
+{
+  for (var i = 0; i < len; i++)
   {
-    for (var i = 0; i < len; i++)
-    {
-      runText(links[i].firstChild, LinkRot(links[i].firstChild));
-    }
-  }    
-}, false);
+    runText(links[i].firstChild, LinkRot(links[i].firstChild));
+  }
+}    
 

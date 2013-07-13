@@ -1,0 +1,27 @@
+{
+	"name": "gplus spoiler",
+	"version": "0.1",
+	"manifest_version": 2,
+
+	"description" : "Google+ {rot13} spoiler tag extension",
+	"developer": {
+		"name": "GiM",
+		"url": "http://gim.org.pl"
+	},
+	"icons": {
+		"48": "icons/icon_48.png"
+	},
+
+	"content_scripts": [
+		{
+			"matches": [ "https://plus.google.com/*" ],
+			"js": ["includes/inject.js"],
+			"run_at": "document_idle"
+		}
+	],
+	
+	"page_action": {},
+	
+	"homepage_url": "https://github.com/gim913/gplus-spoiler"
+}
+
