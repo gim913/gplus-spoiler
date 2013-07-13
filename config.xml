@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" id="http://www.example.org/gplus-spoiler">
+	<name>G+ spoiler tag!</name>
+	<description>Google+ {rot13} spoiler tag extension</description>
+	<author href="http://gim.org.pl/" email="gim">GiM</author>
+  	<icon src="icons/icon.png"/>
+</widget>
+
