@@ -79,8 +79,14 @@ function LinkRot(mainElem)
     var start = d.search(Start_Tag_Re);
     if (start != -1) {
       var ttt = t.parentNode;
+      // already have link, do not add another one
+      if (ttt.tagName.toUpperCase() == 'A') {
+        return 1;
+      }
       var before = d.slice(0, start);
       var after = d.slice(start);
+
+      //console.log('ok got starting tag:' + before + ' ::: ' + after + ' ::: ' + ttt);
   
       var spn = document.createElement("span");
       var txt = document.createTextNode(before);
@@ -94,24 +100,49 @@ function LinkRot(mainElem)
       spn.appendChild(lnk);
       ttt.replaceChild(spn, t);
 
-      // debug
-      // opera.postError(ttt.innerHTML);
       return 1;
     }
     return 0;
   }
 }
 
+function createRotLinks()
+{
+  var links = document.querySelectorAll('div.wm');
+  var len = links.length;
+  if (len >= 0)
+  {
+    //console.log('got ' + len + ' divs');
+    for (var i = 0; i < len; i++)
+    {
+      runText(links[i].firstChild, LinkRot(links[i].firstChild));
+    }
+    //console.log('loop done');
+  }    
+}
+
 // in manifest there is document_idle,
 // so script will execute AFTER DOM has been loaded
 //
-var links = document.querySelectorAll('div.wm');
-var len = links.length;
-if (len >= 0)
+createRotLinks();
+  
+// g+ is ugly ;p on community page it creates longer posts dynamically,
+// by calling some func, which creates 'bigger' div, and hides the 'preview' one
+// so the idea is to intercept click on 'Read more' button, and run my code again...
+//
+var rdmore = document.querySelectorAll('span.syxni');
+var len = rdmore.length;
+for (var i = 0; i < len; ++i)
 {
-  for (var i = 0; i < len; i++)
-  {
-    runText(links[i].firstChild, LinkRot(links[i].firstChild));
-  }
-}    
+  rdmore[i].addEventListener('click', function(e) {
+    // since we're in more or less proper place (in DOM),
+    // it would be nicer to start it somewhere there
+    // instead of running createRotLinks to traverse whole tree...
+    //
+    // I'm delaying it a bit, as I dunno right now,
+    // how to do it properly and call our func,
+    // after dom has been changed (by that g+ func)
+    window.setTimeout(function(){createRotLinks();},10);
+  });
+}
 
